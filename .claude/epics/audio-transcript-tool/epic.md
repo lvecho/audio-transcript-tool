@@ -4,7 +4,7 @@ status: backlog
 created: 2025-09-18T08:22:44Z
 progress: 0%
 prd: .claude/prds/audio-transcript-tool.md
-github: [Will be updated when synced to GitHub]
+github: https://github.com/lvecho/audio-transcript-tool/issues/1
 ---
 
 # Epic: Audio Transcript Tool
@@ -219,22 +219,17 @@ High-level task categories that will be created:
 - **Browser compatibility issues** could extend testing phase
 
 ## Tasks Created
+- [ ] #10 - Session History (parallel: true)
+- [ ] #2 - Foundation Setup (parallel: false)
+- [ ] #3 - UI Component Development (parallel: true)
+- [ ] #4 - Audio Processing Integration (parallel: true)
+- [ ] #5 - Qwen3-ASR Integration (parallel: true)
+- [ ] #6 - Local Data Management (parallel: true)
+- [ ] #7 - OpenRouter Integration (parallel: true)
+- [ ] #8 - Export System (parallel: true)
+- [ ] #9 - Performance Optimization (parallel: false)
 
-- [ ] 001.md - Foundation Setup (parallel: false)
-- [ ] 002.md - UI Component Development (parallel: true)
-- [ ] 003.md - Audio Processing Integration (parallel: true)
-- [ ] 004.md - Qwen3-ASR Integration (parallel: true)
-- [ ] 005.md - Local Data Management (parallel: true)
-- [ ] 006.md - OpenRouter Integration (parallel: true)
-- [ ] 007.md - Export System (parallel: true)
-- [ ] 008.md - Session History (parallel: true)
-- [ ] 009.md - Performance Optimization (parallel: false)
-
-**Total tasks:** 9  
-**Parallel tasks:** 7  
-**Sequential tasks:** 2  
+**Total tasks:**        9
+**Parallel tasks:**        7
+**Sequential tasks:** 2
 **Estimated total effort:** 18-27 days (with parallel execution: 15-21 days)
-
----
-
-*This epic provides a technically sound, implementable plan that maximizes leverage of existing design assets while delivering all PRD requirements through a minimal task breakdown focused on core user value.*
