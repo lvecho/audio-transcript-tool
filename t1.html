@@ -1,0 +1,315 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>语音识别应用</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Geist+Mono&family=Merriweather&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="theme_1.css">
+    <style>
+        :root {
+            /* Apply theme variables */
+            --background: oklch(0.17 0.01 250);
+            --foreground: oklch(0.95 0.01 250);
+            --card: oklch(0.22 0.01 250);
+            --card-foreground: oklch(0.95 0.01 250);
+            --primary: oklch(0.65 0.25 150);
+            --primary-foreground: oklch(0.1 0.01 150);
+            --muted: oklch(0.25 0.01 250);
+            --muted-foreground: oklch(0.65 0.01 250);
+            --border: oklch(0.3 0.02 250);
+            --font-sans: \'Inter\', sans-serif;
+            --font-mono: \'Geist Mono\', monospace;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--foreground);
+            font-family: var(--font-sans);
+            overflow: hidden;
+        }
+
+        .card {
+            background-color: var(--card);
+            border-radius: var(--radius, 0.5rem);
+            border: 1px solid var(--border);
+            animation: fade-in-up 0.5s ease-out forwards;
+            opacity: 0;
+        }
+        
+        .card:nth-child(1) { animation-delay: 100ms; }
+        .card:nth-child(2) { animation-delay: 200ms; }
+        .card:nth-child(3) { animation-delay: 300ms; }
+        .card:nth-child(4) { animation-delay: 400ms; }
+
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: var(--primary-foreground);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px oklch(from var(--primary) h c l / 0.4);
+        }
+        
+        .btn-primary:active {
+            transform: scale(0.95);
+        }
+
+        .btn-secondary {
+            background-color: var(--muted);
+            color: var(--muted-foreground);
+            border: 1px solid var(--border);
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .btn-secondary:hover {
+            background-color: oklch(from var(--muted) l c h / 0.8);
+            color: var(--foreground);
+        }
+        
+        .tab-btn.active {
+            background-color: var(--primary);
+            color: var(--primary-foreground);
+            font-weight: 600;
+        }
+
+        /* Animations */
+        @keyframes fade-in-up {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+
+        .shimmer-effect {
+            background: linear-gradient(to right, transparent 0%, oklch(from var(--muted) l c h / 0.5) 50%, transparent 100%);
+            background-size: 2000px 100%;
+            animation: shimmer 2s linear infinite;
+        }
+        
+        .waveform {
+            width: 100%;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .waveform-bar {
+            width: 3px;
+            height: 100%;
+            background-color: var(--muted-foreground);
+            animation: wave 1.2s ease-in-out infinite alternate;
+            border-radius: 2px;
+        }
+        
+        @keyframes wave {
+            from { transform: scaleY(0.1); }
+            to { transform: scaleY(1); }
+        }
+
+    </style>
+</head>
+<body class="p-4 lg:p-6">
+
+    <div class="flex flex-col h-screen max-h-screen">
+        <!-- Header -->
+        <header class="flex items-center justify-between pb-4 border-b border-[var(--border)] opacity-0" style="animation: fade-in-up 0.5s ease-out forwards;">
+            <div class="flex items-center gap-3">
+                <i data-lucide="brain-circuit" class="text-[var(--primary)] w-8 h-8"></i>
+                <h1 class="text-xl font-bold tracking-tight">语音识别</h1>
+            </div>
+            <button class="p-2 rounded-md hover:bg-[var(--muted)]">
+                <i data-lucide="settings-2"></i>
+            </button>
+        </header>
+
+        <!-- Main Content -->
+        <main class="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 py-6 overflow-hidden">
+            
+            <!-- Left Panel -->
+            <div class="flex flex-col gap-6 overflow-y-auto pr-2">
+                <div class="card p-4">
+                    <h2 class="font-semibold mb-3">音频预览</h2>
+                    <div class="h-24 bg-[var(--muted)] rounded-md flex items-center justify-center">
+                         <div class="waveform">
+                            <!-- Generate bars with staggered animation delays -->
+                         </div>
+                    </div>
+                </div>
+
+                <div class="card p-4">
+                    <div class="flex mb-4 border-b border-[var(--border)]">
+                        <button id="tab-record" class="tab-btn flex-1 p-3 rounded-t-md text-sm font-medium flex items-center justify-center gap-2">
+                            <i data-lucide="mic" class="w-4 h-4"></i> 实时录音
+                        </button>
+                        <button id="tab-upload" class="tab-btn flex-1 p-3 rounded-t-md text-sm font-medium flex items-center justify-center gap-2">
+                            <i data-lucide="upload-cloud" class="w-4 h-4"></i> 文件上传
+                        </button>
+                    </div>
+                    
+                    <!-- Record Panel -->
+                    <div id="panel-record" class="hidden">
+                        <div class="flex items-center justify-between gap-4">
+                            <button class="btn-primary w-24 h-24 rounded-full flex flex-col items-center justify-center text-lg">
+                                <i data-lucide="mic" class="w-8 h-8"></i>
+                            </button>
+                            <div class="flex-1 text-center">
+                                <p class="text-5xl font-mono tracking-widest">00:00</p>
+                                <p class="text-sm text-[var(--muted-foreground)] mt-1">点击按钮开始录音</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Upload Panel -->
+                    <div id="panel-upload">
+                        <div class="border-2 border-dashed border-[var(--border)] rounded-lg p-10 text-center cursor-pointer hover:border-[var(--primary)] transition">
+                            <i data-lucide="upload" class="mx-auto w-12 h-12 text-[var(--muted-foreground)]"></i>
+                            <p class="mt-4 font-semibold">点击或拖拽文件到此处</p>
+                            <p class="text-sm text-[var(--muted-foreground)] mt-1">支持 WAV, MP3, FLAC 等格式</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card p-4 flex-1">
+                    <h2 class="font-semibold mb-3">笔记</h2>
+                    <textarea class="w-full h-full min-h-[100px] bg-transparent border-none focus:ring-0 placeholder:text-[var(--muted-foreground)] resize-none" placeholder="笔记列表为空。"></textarea>
+                </div>
+            </div>
+
+            <!-- Right Panel -->
+            <div class="flex flex-col gap-6 overflow-y-auto pr-2">
+                <div class="card p-4 flex flex-col flex-1">
+                    <div class="flex justify-between items-center mb-3">
+                        <h2 class="font-semibold">识别结果</h2>
+                        <div class="flex gap-2">
+                            <button class="btn-secondary px-3 py-1.5 text-xs rounded-md">单次模式</button>
+                            <button class="btn-secondary px-3 py-1.5 text-xs rounded-md">笔记模式</button>
+                        </div>
+                    </div>
+                    <div id="transcription-result" class="flex-1 bg-[var(--muted)] rounded-md p-4 text-[var(--muted-foreground)] relative overflow-hidden">
+                        识别结果将显示在这里
+                        <!-- Shimmer effect for loading -->
+                        <!-- <div class="absolute inset-0 shimmer-effect"></div> -->
+                    </div>
+                    <div class="flex gap-3 mt-4">
+                        <button id="recognize-btn" class="btn-primary flex-1 py-3 rounded-md font-semibold flex items-center justify-center gap-2">
+                            <i data-lucide="sparkles" class="w-5 h-5"></i> 识别
+                        </button>
+                        <button class="btn-secondary p-3 rounded-md">
+                            <i data-lucide="copy" class="w-5 h-5"></i>
+                        </button>
+                        <button class="btn-secondary p-3 rounded-md">
+                            <i data-lucide="rotate-cw" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card p-4">
+                    <h2 class="font-semibold mb-3">历史记录</h2>
+                    <ul class="space-y-3">
+                        <li class="border-b border-[var(--border)] pb-3 last:border-b-0">
+                            <p class="text-sm line-clamp-2">测试是整个就是说从这个项目，比如说从算法的算法的算法构建啊，然后我是怎么部署...</p>
+                            <div class="flex justify-between items-center mt-2 text-xs text-[var(--muted-foreground)]">
+                                <span>需求.mp3</span>
+                                <div class="flex items-center gap-3">
+                                    <span>中文 / 2025/09/18 15:37</span>
+                                    <i data-lucide="trash-2" class="cursor-pointer hover:text-[var(--destructive)]"></i>
+                                </div>
+                            </div>
+                        </li>
+                         <li class="opacity-60 border-b border-[var(--border)] pb-3 last:border-b-0">
+                            <p class="text-sm line-clamp-2">第二个任务是关于我们下个季度的产品路线图规划，我们需要确定核心功能的优先级...</p>
+                            <div class="flex justify-between items-center mt-2 text-xs text-[var(--muted-foreground)]">
+                                <span>会议纪要_Q3.wav</span>
+                                <div class="flex items-center gap-3">
+                                    <span>中文 / 2025/09/17 11:20</span>
+                                    <i data-lucide="trash-2" class="cursor-pointer hover:text-[var(--destructive)]"></i>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // Tab switching logic
+        const tabRecord = document.getElementById('tab-record');
+        const tabUpload = document.getElementById('tab-upload');
+        const panelRecord = document.getElementById('panel-record');
+        const panelUpload = document.getElementById('panel-upload');
+
+        function setActiveTab(tab) {
+            if (tab === 'record') {
+                tabRecord.classList.add('active');
+                tabUpload.classList.remove('active');
+                panelRecord.style.display = 'block';
+                panelUpload.style.display = 'none';
+            } else {
+                tabUpload.classList.add('active');
+                tabRecord.classList.remove('active');
+                panelUpload.style.display = 'block';
+                panelRecord.style.display = 'none';
+            }
+        }
+
+        tabRecord.addEventListener('click', () => setActiveTab('record'));
+        tabUpload.addEventListener('click', () => setActiveTab('upload'));
+
+        // Set initial tab
+        setActiveTab('upload');
+
+        // Animation for recognize button
+        const recognizeBtn = document.getElementById('recognize-btn');
+        const resultBox = document.getElementById('transcription-result');
+        recognizeBtn.addEventListener('click', () => {
+            const shimmer = document.createElement('div');
+            shimmer.className = 'absolute inset-0 shimmer-effect';
+            resultBox.appendChild(shimmer);
+            recognizeBtn.disabled = true;
+            recognizeBtn.innerHTML = \`<i data-lucide="loader-circle" class="w-5 h-5 animate-spin"></i> 正在识别...\`;
+            lucide.createIcons();
+
+            setTimeout(() => {
+                resultBox.removeChild(shimmer);
+                resultBox.textContent = "这是从模拟音频文件中识别出的文本结果。设计非常出色，动画效果流畅，主题现代。";
+                recognizeBtn.disabled = false;
+                recognizeBtn.innerHTML = \`<i data-lucide="sparkles" class="w-5 h-5"></i> 识别\`;
+                lucide.createIcons();
+            }, 2500);
+        });
+        
+        // Waveform animation
+        const waveformContainer = document.querySelector(\'.waveform\');
+        for (let i = 0; i < 50; i++) {
+            const bar = document.createElement(\'div\');
+            bar.className = \'waveform-bar\';
+            bar.style.animationDelay = \`\${Math.random() * 1.2}s\`;
+            waveformContainer.appendChild(bar);
+        }
+
+    </script>
+
+</body>
+</html>
